@@ -54,6 +54,7 @@ void setup() {
   // update GMT time
   while (!capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80));
   capnhatthoigian();
+  printTime();
 }
 void loop() {
   timeNow = capnhat.giay() + (millis() - timeUpdate) / 1000; // the number of milliseconds that have passed since capnhatthoigian()
@@ -226,12 +227,12 @@ void connectWiFi() {
   }
 }
 
-void buzz() {// tone C7
-  tone(13, 2093);
+void buzz() {// tone E7
+  tone(13, 2637.02);
   delay(100);
   noTone(13);
   delay(50);
-  tone(13, 2093);
+  tone(13, 2637.02);
   delay(100);
   noTone(13);
   sig = false;
