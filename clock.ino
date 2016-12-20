@@ -22,11 +22,9 @@ unsigned long timeLast = 0;
 
 //Time start Settings:
 
-int startingHour = 12; // set your starting hour here, not below at int hour. This ensures accurate daily correction of time
-
 int seconds = 0;
-int minutes = 33;
-int hours = startingHour;
+int minutes = 0;
+int hours = 0;
 int days = 0;
 
 int lastSeconds = 0;
@@ -77,26 +75,6 @@ void loop() {
     hours = 0;
     days = days + 1;
   }
-
-  //if 24 hours have passed , add one day
-
-  if (hours == (24 - startingHour) && correctedToday == 0) {
-    delay(dailyErrorFast * 1000);
-    seconds = seconds + dailyErrorBehind;
-    correctedToday = 1;
-  }
-
-  //every time 24 hours have passed since the initial starting time and it has not been reset this day before, add milliseconds or delay the progran with some milliseconds.
-  //Change these varialbes according to the error of your board.
-  // The only way to find out how far off your boards internal clock is, is by uploading this sketch at exactly the same time as the real time, letting it run for a few days
-  // and then determine how many seconds slow/fast your boards internal clock is on a daily average. (24 hours).
-
-  if (hours == 24 - startingHour + 2) {
-    correctedToday = 0;
-  }
-
-  //let the sketch know that a new day has started for what concerns correction, if this line was not here the arduiono
-  // would continue to correct for an entire hour that is 24 - startingHour.
 
   // alarm even ==============================================
   sig = true;
@@ -205,7 +183,6 @@ void loop() {
 
 void capnhatthoigian() {
   hours = capnhat.gio();
-  startingHour = hours;
   minutes = capnhat.phut();
   seconds = capnhat.giay();
   timeUpdate = millis();
