@@ -3,6 +3,8 @@
 #include <WiFiClient.h>
 #include "gmt.h"
 
+#define pin_resert 16
+
 // WiFi information
 const char WIFI_SSID[] = "HKBike - Sanpham";
 const char WIFI_PSK[] = "hkbike@6789";
@@ -46,6 +48,8 @@ void setup() {
   Serial.print("Connecting to "); Serial.println(WIFI_SSID);
   pinMode(13, OUTPUT);// buzzer
   pinMode(12, OUTPUT);// led
+  pinMode(pin_resert, OUTPUT);// hard reset
+  digitalWrite(pin_resert, HIGH);// hard reset
   // Connect to WiFi
   connectWiFi();
   buzz();
@@ -70,18 +74,19 @@ void loop() {
   }
 
   // if one hour has passed, start counting minutes from zero and add one hour to the clock
-
   if (hours == 24) {
     hours = 0;
-    days = days + 1;
   }
 
   // alarm even ==============================================
   sig = true;
   if (at(6, 0, 0)) {
     buzz();
-    if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
+    hardreset();
+    /*
+      if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
       capnhatthoigian();
+    */
   }
   else if (at(8, 0, 0)) {
     buzz(); delay(800);
@@ -124,11 +129,20 @@ void loop() {
       Serial.println("Type 's' to set time");
       Serial.println("Type 't' to get time");
       Serial.println("Type 'a' to get alarm list");
+      Serial.println("Type 'u' to update time");
+      Serial.println("Type 'r' to hardreset");
       Serial.println("Type 'q' to quit help");
     }
     else if (inHelp) {
       char* temp = &serialReceive[0];
       switch (temp[0]) {
+        case 'u': {
+            Serial.println("Update time");
+            if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
+              capnhatthoigian();
+            printTime();
+            break;
+          }
         case 's': {
             Serial.println("Format: hours:minutes:seconds");
             Serial.println("Exp: 13:06:50");
@@ -137,6 +151,11 @@ void loop() {
           }
         case 't': {
             printTime();
+            break;
+          }
+        case 'r': {
+            Serial.println("Reseting...");
+            hardreset();
             break;
           }
         case 'q': {
@@ -168,12 +187,13 @@ void loop() {
 
   // frequency even ==============================================
   if (seconds != lastSeconds) {
+
     led();
     // buzz every 30 minutes
     if (lastSeconds == 60) {
       printTime();
       if (minutes == 0 || minutes == 30) {
-        if(sig) buzz();
+        if (sig) buzz();
       }
     }
     lastSeconds = seconds;
@@ -247,5 +267,10 @@ void printTime() {
   Serial.print(minutes);
   Serial.print(":");
   Serial.println(seconds);
+}
+
+void hardreset() {
+  digitalWrite(pin_resert, LOW);
+  delay(10);
 }
 

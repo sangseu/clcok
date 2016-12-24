@@ -30,10 +30,10 @@ bool gmt::sync(char host[], char url[], uint16_t port)
   int i = 0;
   while (client.available()) {
     headerString += char(client.read());
-    if(i++ > 400) break;
+    if (i++ > 400) break;
   }
   int ds = headerString.indexOf("Date: ");
-  gmt_string = headerString.substring(ds+23, ds+32);
+  gmt_string = headerString.substring(ds + 23, ds + 32);
   // date and time: Sun, 29 May 2016 10:00:14
   // gmt_string: 10:00:14
   Serial.print("Header time: ");
@@ -44,14 +44,14 @@ bool gmt::sync(char host[], char url[], uint16_t port)
   _phut = gmt_string.substring(3, 5);
   _giay = gmt_string.substring(6, 8);
 
-  if (i>2) _return = true;
+  if (i > 2) _return = true;
   else _return = false;
   return _return;
 }
 
 int gmt::gio()
 {
-  return _gio.toInt()+7;
+  return _gio.toInt() + 7 > 24 ? _gio.toInt() + 7 - 24 : _gio.toInt() + 7;
 }
 
 int gmt::phut()
