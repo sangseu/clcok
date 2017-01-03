@@ -44,7 +44,7 @@ bool gmt::sync(char host[], char url[], uint16_t port)
   _phut = gmt_string.substring(3, 5);
   _giay = gmt_string.substring(6, 8);
 
-  if (i > 2) _return = true;
+  if (_gio.toInt() || _phut.toInt() || _giay.toInt()) _return = true;
   else _return = false;
   return _return;
 }

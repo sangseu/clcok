@@ -18,7 +18,7 @@ bool sttled = true;
 //gmt object
 gmt capnhat;
 
-unsigned long timeNow = 0;
+unsigned long deltaMicroSeconds = 0;
 unsigned long timeUpdate = 0;
 unsigned long timeLast = 0;
 
@@ -59,34 +59,68 @@ void setup() {
   printTime();
 }
 void loop() {
-  timeNow = capnhat.giay() + (millis() - timeUpdate) / 1000; // the number of milliseconds that have passed since capnhatthoigian()
-  seconds = timeNow - timeLast;//the number of seconds that have passed since the last time 60 seconds was reached.
+  deltaMicroSeconds = (millis() - timeLast) / 1000;
+  if (deltaMicroSeconds) {
+    timeLast = millis();
+    seconds += 1;
+  }
 
   if (seconds == 60) {
-    timeLast = timeNow;// reset delta_second, delta_second 0->60
+    seconds = 0;
     minutes = minutes + 1;
   }
 
-  //if one minute has passed, start counting milliseconds from zero again and add one minute to the clock.
-  if (minutes == 60) {
-    minutes = 0;
-    hours = hours + 1;
-  }
+  // every second even ==============================================
+  if (seconds != lastSeconds) {
 
-  // if one hour has passed, start counting minutes from zero and add one hour to the clock
-  if (hours == 24) {
-    hours = 0;
+    //toogle led
+    led();
+
+    // buzz every 30 minutes
+    if (lastSeconds == 60) {
+      if (minutes == 0 || minutes == 30) {
+        if (sig) buzz();
+      }
+      printTime();
+    }
+
+    //at second 0, check update, change counter hours
+    if (seconds == 0)
+    {
+      // change counter
+      if (minutes == 15) {
+        if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80)) {
+          capnhatthoigian();
+          Serial.println("Updating time...");
+        }
+      }
+
+      //if one minute has passed, start counting milliseconds from zero again and add one minute to the clock.
+      if (minutes == 60) {
+        minutes = 0;
+        hours = hours + 1;
+      }
+
+      // if one hour has passed, start counting minutes from zero and add one hour to the clock
+      if (hours == 24) {
+        hours = 0;
+      }
+
+      if (hours == 6) {
+        hardreset();
+      }
+    }
+
+    lastSeconds = seconds;
   }
+  // end every second even ==============================================
 
   // alarm even ==============================================
   sig = true;
   if (at(6, 0, 0)) {
     buzz();
-    hardreset();
-    /*
-      if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
+    if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
       capnhatthoigian();
-    */
   }
   else if (at(8, 0, 0)) {
     buzz(); delay(800);
@@ -185,27 +219,13 @@ void loop() {
   }
   // serial even ==============================================
 
-  // frequency even ==============================================
-  if (seconds != lastSeconds) {
-
-    led();
-    // buzz every 30 minutes
-    if (lastSeconds == 60) {
-      printTime();
-      if (minutes == 0 || minutes == 30) {
-        if (sig) buzz();
-      }
-    }
-    lastSeconds = seconds;
-  }
-  // frequency even ==============================================
 }
 
 void capnhatthoigian() {
   hours = capnhat.gio();
   minutes = capnhat.phut();
   seconds = capnhat.giay();
-  timeUpdate = millis();
+  timeLast = millis();
 }
 
 // Attempt to connect to WiFi
