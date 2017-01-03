@@ -54,7 +54,7 @@ void setup() {
   connectWiFi();
   buzz();
   // update GMT time
-  while (!capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80));
+  while (!capnhat.sync("sangseu.github.io", "/gmt/index.html", 80));
   capnhatthoigian();
   printTime();
 }
@@ -73,11 +73,13 @@ void loop() {
   // every second even ==============================================
   if (seconds != lastSeconds) {
 
+    sig = true;
+
     //toogle led
     led();
 
     // buzz every 30 minutes
-    if (lastSeconds == 60) {
+    if (lastSeconds == 59) {
       if (minutes == 0 || minutes == 30) {
         if (sig) buzz();
       }
@@ -89,7 +91,7 @@ void loop() {
     {
       // change counter
       if (minutes == 15) {
-        if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80)) {
+        if (capnhat.sync("sangseu.github.io", "/gmt/index.html", 80)) {
           capnhatthoigian();
           Serial.println("Updating time...");
         }
@@ -116,10 +118,9 @@ void loop() {
   // end every second even ==============================================
 
   // alarm even ==============================================
-  sig = true;
   if (at(6, 0, 0)) {
     buzz();
-    if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
+    if (capnhat.sync("sangseu.github.io", "/gmt/index.html", 80))
       capnhatthoigian();
   }
   else if (at(8, 0, 0)) {
@@ -172,7 +173,7 @@ void loop() {
       switch (temp[0]) {
         case 'u': {
             Serial.println("Update time");
-            if (capnhat.sync("sangseu.github.io", "/writing/gmt/index.html", 80))
+            if (capnhat.sync("sangseu.github.io", "/gmt/index.html", 80))
               capnhatthoigian();
             printTime();
             break;
