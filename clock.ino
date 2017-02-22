@@ -1,9 +1,20 @@
+<<<<<<< HEAD
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include "gmt.h"
+#include "TimeLib.h"
+
+#define pin_resert 16
+#define TIME_HEADER  "T"   // Header tag for serial time sync message
+#define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
+=======
 //get time http://sangseu.github.io/writing/gmt/
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include "gmt.h"
 
 #define pin_resert 16
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
 
 // WiFi information
 const char WIFI_SSID[] = "HKBike - Sanpham";
@@ -57,6 +68,16 @@ void setup() {
   while (!capnhat.sync("sangseu.github.io", "/gmt/index.html", 80));
   capnhatthoigian();
   printTime();
+<<<<<<< HEAD
+  setSyncProvider( requestSync);  //set function to call when sync required
+}
+void loop() {
+  if (timeStatus() != timeNotSet) {
+    if (second() % 5) Serial.print(".");
+    else Serial.println(".");
+  }
+
+=======
 }
 void loop() {
   deltaMicroSeconds = (millis() - timeLast) / 1000;
@@ -117,6 +138,7 @@ void loop() {
   }
   // end every second even ==============================================
 
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
   // alarm even ==============================================
   if (at(6, 0, 0)) {
     buzz();
@@ -223,10 +245,14 @@ void loop() {
 }
 
 void capnhatthoigian() {
+<<<<<<< HEAD
+  setTime(capnhat.gio(), capnhat.phut(), capnhat.giay(), 22, 2, 2017);
+=======
   hours = capnhat.gio();
   minutes = capnhat.phut();
   seconds = capnhat.giay();
   timeLast = millis();
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
 }
 
 // Attempt to connect to WiFi
@@ -257,7 +283,11 @@ void buzz() {// tone E7
 }
 
 bool at(int gio, int phut, int giay) {
+<<<<<<< HEAD
+  if (gio == hour() && phut == minute() && giay == second()) return true;
+=======
   if (gio == hours && phut == minutes && giay == seconds) return true;
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
   else return false;
 
 }
@@ -283,11 +313,19 @@ void serialEvent() {
 
 void printTime() {
   Serial.print("The time is:\t");
+<<<<<<< HEAD
+  Serial.print(hour());
+  Serial.print(":");
+  Serial.print(minute());
+  Serial.print(":");
+  Serial.println(second());
+=======
   Serial.print(hours);
   Serial.print(":");
   Serial.print(minutes);
   Serial.print(":");
   Serial.println(seconds);
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
 }
 
 void hardreset() {
@@ -295,3 +333,12 @@ void hardreset() {
   delay(10);
 }
 
+<<<<<<< HEAD
+time_t requestSync()
+{
+  Serial.write(TIME_REQUEST);
+  return 0; // the time will be sent later in response to serial mesg
+}
+
+=======
+>>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
