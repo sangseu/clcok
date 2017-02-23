@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include "gmt.h"
@@ -7,14 +6,6 @@
 #define pin_resert 16
 #define TIME_HEADER  "T"   // Header tag for serial time sync message
 #define TIME_REQUEST  7    // ASCII bell character requests a time sync message 
-=======
-//get time http://sangseu.github.io/writing/gmt/
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include "gmt.h"
-
-#define pin_resert 16
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
 
 // WiFi information
 const char WIFI_SSID[] = "HKBike - Sanpham";
@@ -26,28 +17,10 @@ bool inHelp = false, inSetTime = false;
 bool sig = false;
 bool sttled = true;
 
+int lastsecond = 0;
+
 //gmt object
 gmt capnhat;
-
-unsigned long deltaMicroSeconds = 0;
-unsigned long timeUpdate = 0;
-unsigned long timeLast = 0;
-
-//Time start Settings:
-
-int seconds = 0;
-int minutes = 0;
-int hours = 0;
-int days = 0;
-
-int lastSeconds = 0;
-
-//Accuracy settings
-
-int dailyErrorFast = 0; // set the average number of milliseconds your microcontroller's time is fast on a daily basis
-int dailyErrorBehind = 0; // set the average number of milliseconds your microcontroller's time is behind on a daily basis
-
-int correctedToday = 1; // do not change this variable, one means that the time has already been corrected today for the error in your boards crystal. This is true for the first day because you just set the time when you uploaded the sketch.
 
 void setup() {
   // put your setup code here, to run once:
@@ -63,82 +36,17 @@ void setup() {
   digitalWrite(pin_resert, HIGH);// hard reset
   // Connect to WiFi
   connectWiFi();
-  buzz();
+  tit();
   // update GMT time
   while (!capnhat.sync("sangseu.github.io", "/gmt/index.html", 80));
   capnhatthoigian();
+  tit();
   printTime();
-<<<<<<< HEAD
   setSyncProvider( requestSync);  //set function to call when sync required
+  lastsecond = second();
 }
 void loop() {
-  if (timeStatus() != timeNotSet) {
-    if (second() % 5) Serial.print(".");
-    else Serial.println(".");
-  }
-
-=======
-}
-void loop() {
-  deltaMicroSeconds = (millis() - timeLast) / 1000;
-  if (deltaMicroSeconds) {
-    timeLast = millis();
-    seconds += 1;
-  }
-
-  if (seconds == 60) {
-    seconds = 0;
-    minutes = minutes + 1;
-  }
-
-  // every second even ==============================================
-  if (seconds != lastSeconds) {
-
-    sig = true;
-
-    //toogle led
-    led();
-
-    // buzz every 30 minutes
-    if (lastSeconds == 59) {
-      if (minutes == 0 || minutes == 30) {
-        if (sig) buzz();
-      }
-      printTime();
-    }
-
-    //at second 0, check update, change counter hours
-    if (seconds == 0)
-    {
-      // change counter
-      if (minutes == 15) {
-        if (capnhat.sync("sangseu.github.io", "/gmt/index.html", 80)) {
-          capnhatthoigian();
-          Serial.println("Updating time...");
-        }
-      }
-
-      //if one minute has passed, start counting milliseconds from zero again and add one minute to the clock.
-      if (minutes == 60) {
-        minutes = 0;
-        hours = hours + 1;
-      }
-
-      // if one hour has passed, start counting minutes from zero and add one hour to the clock
-      if (hours == 24) {
-        hours = 0;
-      }
-
-      if (hours == 6) {
-        hardreset();
-      }
-    }
-
-    lastSeconds = seconds;
-  }
-  // end every second even ==============================================
-
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
+  sig = true;
   // alarm even ==============================================
   if (at(6, 0, 0)) {
     buzz();
@@ -166,14 +74,18 @@ void loop() {
     buzz(); delay(800);
     buzz();
   }
-  else if (at(17, 30, 0)) {
-    buzz(); delay(800);
-    buzz(); delay(800);
-    buzz(); delay(800);
-    buzz(); delay(800);
-    buzz();
-  }
   // alarm even ==============================================
+
+  if (second() != lastsecond) {
+    lastsecond = second();
+    if (second() % 5) Serial.print(".");
+    else Serial.println(".");
+
+    if ((second() == 0) && ( minute() == 0 || minute() == 30) && sig) {
+      tit();
+      printTime();
+    }
+  }
 
   // serial even ==============================================
   serialEvent();
@@ -245,14 +157,7 @@ void loop() {
 }
 
 void capnhatthoigian() {
-<<<<<<< HEAD
-  setTime(capnhat.gio(), capnhat.phut(), capnhat.giay(), 22, 2, 2017);
-=======
-  hours = capnhat.gio();
-  minutes = capnhat.phut();
-  seconds = capnhat.giay();
-  timeLast = millis();
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
+  setTime(capnhat.gio(), capnhat.phut(), capnhat.giay(), 23, 2, 2017);
 }
 
 // Attempt to connect to WiFi
@@ -281,13 +186,15 @@ void buzz() {// tone E7
   noTone(13);
   sig = false;
 }
+void tit() {
+  tone(13, 2637.02);
+  delay(100);
+  noTone(13);
+  delay(50);
+}
 
 bool at(int gio, int phut, int giay) {
-<<<<<<< HEAD
   if (gio == hour() && phut == minute() && giay == second()) return true;
-=======
-  if (gio == hours && phut == minutes && giay == seconds) return true;
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
   else return false;
 
 }
@@ -313,19 +220,11 @@ void serialEvent() {
 
 void printTime() {
   Serial.print("The time is:\t");
-<<<<<<< HEAD
   Serial.print(hour());
   Serial.print(":");
   Serial.print(minute());
   Serial.print(":");
   Serial.println(second());
-=======
-  Serial.print(hours);
-  Serial.print(":");
-  Serial.print(minutes);
-  Serial.print(":");
-  Serial.println(seconds);
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
 }
 
 void hardreset() {
@@ -333,12 +232,8 @@ void hardreset() {
   delay(10);
 }
 
-<<<<<<< HEAD
 time_t requestSync()
 {
   Serial.write(TIME_REQUEST);
   return 0; // the time will be sent later in response to serial mesg
 }
-
-=======
->>>>>>> 46e53a1a68b020132c8943a4fb660f98cc81d911
